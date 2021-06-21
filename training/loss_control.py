@@ -48,8 +48,8 @@ def Reconstruction_loss(fake_image,landmark_label,coeff_label,FaceRender):
     fake_image = tf.image.resize_images(fake_image,size=[224, 224], method=tf.image.ResizeMethod.BILINEAR)
 
     # input to R_Net should have a shape of [batchsize,224,224,3], color range from 0-255 in BGR order.
-    with tf.variable_scope(tf.get_variable_scope(), reuse=tf.AUTO_REUSE):
-        coeff = R_Net(fake_image,is_training=False, reuse=tf.AUTO_REUSE)
+    with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope(), reuse=tf.compat.v1.AUTO_REUSE):
+        coeff = R_Net(fake_image,is_training=False, reuse=tf.compat.v1.AUTO_REUSE)
     landmark_p = FaceRender.Get_landmark(coeff) #224*224
 
     landmark_weight = tf.ones([1,68])
@@ -138,8 +138,8 @@ def Gamma_change_loss(fake1,fake2,FaceRender):
     fake_image = tf.clip_by_value(fake_image,0,255)
     fake_image = tf.reverse(fake_image,[3]) #RGBtoBGR
     fake_image = tf.image.resize_images(fake_image,size=[224, 224], method=tf.image.ResizeMethod.BILINEAR)
-    with tf.variable_scope(tf.get_variable_scope(), reuse=tf.AUTO_REUSE):
-        coeff = R_Net(fake_image,is_training=False, reuse=tf.AUTO_REUSE)
+    with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope(), reuse=tf.compat.v1.AUTO_REUSE):
+        coeff = R_Net(fake_image,is_training=False, reuse=tf.compat.v1.AUTO_REUSE)
     landmark_p = FaceRender.Get_landmark(coeff)
     landmark_p = landmark_p*256/224.
 

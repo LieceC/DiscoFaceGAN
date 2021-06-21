@@ -22,7 +22,7 @@ from training.training_loop import z_to_lambda_mapping
 # Modified by Deng et al.
 def restore_weights_and_initialize():
     var_list = tf.trainable_variables()
-    g_list = tf.global_variables()
+    g_list = tf.compat.v1.global_variables()
 
     # add batch normalization params into trainable variables 
     bn_moving_vars = [g for g in g_list if 'moving_mean' in g.name]
@@ -39,10 +39,10 @@ def restore_weights_and_initialize():
     saver_gamma = tf.train.Saver(var_list = var_gamma_list,max_to_keep = 100)
     saver_rot = tf.train.Saver(var_list = var_rot_list,max_to_keep = 100)
     
-    saver_id.restore(tf.get_default_session(),'./vae/weights/id/stage1_epoch_395.ckpt')
-    saver_exp.restore(tf.get_default_session(),'./vae/weights/exp/stage1_epoch_395.ckpt')
-    saver_gamma.restore(tf.get_default_session(),'./vae/weights/gamma/stage1_epoch_395.ckpt')
-    saver_rot.restore(tf.get_default_session(),'./vae/weights/rot/stage1_epoch_395.ckpt')
+    saver_id.restore(tf.compat.v1.get_default_session(),'./vae/weights/id/stage1_epoch_395.ckpt')
+    saver_exp.restore(tf.compat.v1.get_default_session(),'./vae/weights/exp/stage1_epoch_395.ckpt')
+    saver_gamma.restore(tf.compat.v1.get_default_session(),'./vae/weights/gamma/stage1_epoch_395.ckpt')
+    saver_rot.restore(tf.compat.v1.get_default_session(),'./vae/weights/rot/stage1_epoch_395.ckpt')
 #----------------------------------------------------------------------------
 
 class FID(metric_base.MetricBase):

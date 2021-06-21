@@ -40,7 +40,7 @@ def process_reals(x, lod, mirror_augment, drange_data, drange_net):
 
 def restore_weights_and_initialize(train_stage_args):
     var_list = tf.trainable_variables()
-    g_list = tf.global_variables()
+    g_list = tf.compat.v1.global_variables()
 
     # add batch normalization params into trainable variables 
     bn_moving_vars = [g for g in g_list if 'moving_mean' in g.name]
@@ -67,17 +67,17 @@ def restore_weights_and_initialize(train_stage_args):
     saver_rot = tf.train.Saver(var_list = var_rot_list,max_to_keep = 100)
     
 
-    saver_resnet.restore(tf.get_default_session(),os.path.join('./training/pretrained_weights/recon_net','FaceReconModel'))
-    saver_facerec.restore(tf.get_default_session(),'./training/pretrained_weights/id_net/model-20170512-110547.ckpt-250000')
-    saver_id.restore(tf.get_default_session(),'./vae/weights/id/stage1_epoch_395.ckpt')
-    saver_exp.restore(tf.get_default_session(),'./vae/weights/exp/stage1_epoch_395.ckpt')
-    saver_gamma.restore(tf.get_default_session(),'./vae/weights/gamma/stage1_epoch_395.ckpt')
-    saver_rot.restore(tf.get_default_session(),'./vae/weights/rot/stage1_epoch_395.ckpt')
+    saver_resnet.restore(tf.compat.v1.get_default_session(),os.path.join('./training/pretrained_weights/recon_net','FaceReconModel'))
+    saver_facerec.restore(tf.compat.v1.get_default_session(),'./training/pretrained_weights/id_net/model-20170512-110547.ckpt-250000')
+    saver_id.restore(tf.compat.v1.get_default_session(),'./vae/weights/id/stage1_epoch_395.ckpt')
+    saver_exp.restore(tf.compat.v1.get_default_session(),'./vae/weights/exp/stage1_epoch_395.ckpt')
+    saver_gamma.restore(tf.compat.v1.get_default_session(),'./vae/weights/gamma/stage1_epoch_395.ckpt')
+    saver_rot.restore(tf.compat.v1.get_default_session(),'./vae/weights/rot/stage1_epoch_395.ckpt')
 
     if train_stage_args.func_name == 'training.training_utils.training_stage2':
         parser_vars = [v for v in var_list if 'FaceParser' in v.name]
         saver_parser = tf.train.Saver(var_list = parser_vars)
-        saver_parser.restore(tf.get_default_session(),os.path.join('./training/pretrained_weights/parsing_net','faceparser_public'))
+        saver_parser.restore(tf.compat.v1.get_default_session(),os.path.join('./training/pretrained_weights/parsing_net','faceparser_public'))
 
 
 #----------------------------------------------------------------------------
@@ -144,14 +144,14 @@ def training_stage2(
 
 # Mapping z sampled from normal distribution to lambda space variables with physical meanings
 def z_to_lambda_mapping(latents):
-    with tf.variable_scope(tf.get_variable_scope(), reuse=tf.AUTO_REUSE):
-        with tf.variable_scope('id'):
+    with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope(), reuse=tf.compat.v1.AUTO_REUSE):
+        with tf.compat.v1.variable_scope('id'):
             IDcoeff = CoeffDecoder(z = latents[:,:128],coeff_length = 160,ch_dim = 512, ch_depth = 3)
-        with tf.variable_scope('exp'):
+        with tf.compat.v1.variable_scope('exp'):
             EXPcoeff = CoeffDecoder(z = latents[:,128:128+32],coeff_length = 64,ch_dim = 256, ch_depth = 3)
-        with tf.variable_scope('gamma'):
+        with tf.compat.v1.variable_scope('gamma'):
             GAMMAcoeff = CoeffDecoder(z = latents[:,128+32:128+32+16],coeff_length = 27,ch_dim = 128, ch_depth = 3)
-        with tf.variable_scope('rot'):
+        with tf.compat.v1.variable_scope('rot'):
             Rotcoeff = CoeffDecoder(z = latents[:,128+32+16:128+32+16+3],coeff_length = 3,ch_dim = 32, ch_depth = 3)
 
         INPUTcoeff = tf.concat([IDcoeff,EXPcoeff,Rotcoeff,GAMMAcoeff], axis = 1)

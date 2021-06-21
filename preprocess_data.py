@@ -18,7 +18,7 @@ import argparse
 # https://github.com/microsoft/Deep3DFaceReconstruction
 model_continue_path = 'training/pretrained_weights/recon_net'
 R_net_weights = os.path.join(model_continue_path,'FaceReconModel')
-config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.visible_device_list = '0'
 
 def parse_args():
@@ -55,14 +55,14 @@ def main():
 	# Build reconstruction model
 	with tf.Graph().as_default() as graph:
 
-		images = tf.placeholder(name = 'input_imgs', shape = [None,224,224,3], dtype = tf.float32)
+		images = tf.compat.v1.placeholder(name = 'input_imgs', shape = [None,224,224,3], dtype = tf.float32)
 		Face3D = face_decoder.Face3D() # analytic 3D face formation process
 		coeff = R_Net(images,is_training=False) # 3D face reconstruction network
 
-		with tf.Session(config = config) as sess:
+		with tf.compat.v1.Session(config = config) as sess:
 
 			var_list = tf.trainable_variables()
-			g_list = tf.global_variables()
+			g_list = tf.compat.v1.global_variables()
 
 			# Add batch normalization params into trainable variables 
 			bn_moving_vars = [g for g in g_list if 'moving_mean' in g.name]

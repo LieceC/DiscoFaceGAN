@@ -16,7 +16,7 @@ class TwoStageVaeModel(object):
         self.ch_depth = ch_depth
         self.cross_entropy_loss = cross_entropy_loss
 
-        self.is_training = tf.placeholder(tf.bool, [], 'is_training')
+        self.is_training = tf.compat.v1.placeholder(tf.bool, [], 'is_training')
 
         self.__build_network()
         self.__build_loss()
@@ -24,7 +24,7 @@ class TwoStageVaeModel(object):
         self.__build_optimizer()
 
     def __build_network(self):
-        with tf.variable_scope('stage1'):
+        with tf.compat.v1.variable_scope('stage1'):
             self.build_encoder1()
             self.build_decoder1()
 
@@ -49,9 +49,9 @@ class TwoStageVaeModel(object):
             self.summary1 = tf.summary.merge(self.summary1)
 
     def __build_optimizer(self):
-        all_variables = tf.global_variables()
+        all_variables = tf.compat.v1.global_variables()
         variables1 = [var for var in all_variables if 'stage1' in var.name]
-        self.lr = tf.placeholder(tf.float32, [], 'lr')
+        self.lr = tf.compat.v1.placeholder(tf.float32, [], 'lr')
         self.global_step = tf.get_variable('global_step', [], tf.int32, tf.zeros_initializer(), trainable=False)
         self.opt1 = tf.train.AdamOptimizer(self.lr).minimize(self.loss1, self.global_step, var_list=variables1)
 
@@ -81,7 +81,7 @@ class MLP(TwoStageVaeModel):
         super(MLP, self).__init__(x, latent_dim, ch_dim, ch_depth, cross_entropy_loss)
 
     def build_encoder1(self):
-        with tf.variable_scope('encoder'):
+        with tf.compat.v1.variable_scope('encoder'):
             y = self.x 
             for i in range(self.ch_depth):
                 y = tf.layers.dense(y, self.ch_dim, tf.nn.relu, name='fc'+str(i))
@@ -92,7 +92,7 @@ class MLP(TwoStageVaeModel):
             self.z = self.mu_z + tf.random_normal([self.batch_size, self.latent_dim]) * self.sd_z 
 
     def build_decoder1(self):
-        with tf.variable_scope('decoder'):
+        with tf.compat.v1.variable_scope('decoder'):
             y = self.z 
             self.final_side_length = self.x.get_shape().as_list()[1]
             for i in range(self.ch_depth):

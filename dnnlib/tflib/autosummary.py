@@ -100,7 +100,7 @@ def autosummary(name: str, value: TfExpressionEx, passthru: TfExpressionEx = Non
     else:  # python scalar or numpy array
         if name not in _immediate:
             with tfutil.absolute_name_scope("Autosummary/" + name_id), tf.device(None), tf.control_dependencies(None):
-                update_value = tf.placeholder(_dtype)
+                update_value = tf.compat.v1.placeholder(_dtype)
                 update_op = _create_var(name, update_value)
                 _immediate[name] = update_op, update_value
 

@@ -67,7 +67,7 @@ def spectral_norm(input_):
 
 def conv2d(input_, output_dim, k_h, k_w, d_h, d_w, stddev=0.02, name="conv2d",
            initializer=tf.truncated_normal_initializer, use_sn=False):
-  with tf.variable_scope(name):
+  with tf.compat.v1.variable_scope(name):
     w = tf.get_variable(
         "w", [k_h, k_w, input_.get_shape()[-1], output_dim],
         initializer=initializer(stddev=stddev))
@@ -83,7 +83,7 @@ def conv2d(input_, output_dim, k_h, k_w, d_h, d_w, stddev=0.02, name="conv2d",
 def linear(input_, output_size, scope=None, stddev=0.02, bias_start=0.0, use_sn=False):
     shape = input_.get_shape().as_list()
 
-    with tf.variable_scope(scope or "Linear"):
+    with tf.compat.v1.variable_scope(scope or "Linear"):
         matrix = tf.get_variable("Matrix", [shape[1], output_size], tf.float32, tf.random_normal_initializer(stddev=stddev))
         bias = tf.get_variable("bias", [output_size], initializer=tf.constant_initializer(bias_start))
         if use_sn:
@@ -107,7 +107,7 @@ def batch_norm(x, is_training, scope, eps=1e-5, decay=0.999, affine=True):
             return tf.identity(mean), tf.identity(variance)
 
     with tf.name_scope(scope):
-        with tf.variable_scope(scope + '_w'):
+        with tf.compat.v1.variable_scope(scope + '_w'):
             params_shape = x.get_shape().as_list()[-1:]
             moving_mean = tf.get_variable('mean', params_shape, initializer=tf.zeros_initializer(), trainable=False)
             moving_variance = tf.get_variable('variance', params_shape, initializer=tf.ones_initializer, trainable=False)
@@ -122,7 +122,7 @@ def batch_norm(x, is_training, scope, eps=1e-5, decay=0.999, affine=True):
 
 
 def deconv2d(input_, output_shape, k_h, k_w, d_h, d_w, stddev=0.02, name="deconv2d"):
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         w = tf.get_variable("w", [k_h, k_w, output_shape[-1], input_.get_shape()[-1]], initializer=tf.random_normal_initializer(stddev=stddev))
         deconv = tf.nn.conv2d_transpose(input_, w, output_shape=output_shape, strides=[1, d_h, d_w, 1])
         biases = tf.get_variable("biases", [output_shape[-1]], initializer=tf.constant_initializer(0.0))
@@ -130,21 +130,21 @@ def deconv2d(input_, output_shape, k_h, k_w, d_h, d_w, stddev=0.02, name="deconv
 
 
 def downsample(x, out_dim, kernel_size, name):
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         input_shape = x.get_shape().as_list()
         assert(len(input_shape) == 4)
         return tf.layers.conv2d(x, out_dim, kernel_size, 2, 'same')
 
 
 def upsample(x, out_dim, kernel_size, name):
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         input_shape = x.get_shape().as_list()
         assert(len(input_shape) == 4)
         return tf.layers.conv2d_transpose(x, out_dim, kernel_size, 2, 'same')
 
 
 def res_block(x, out_dim, is_training, name, depth=2, kernel_size=3):
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         y = x
         for i in range(depth):
             y = tf.nn.relu(batch_norm(y, is_training, 'bn'+str(i)))
@@ -154,7 +154,7 @@ def res_block(x, out_dim, is_training, name, depth=2, kernel_size=3):
 
 
 def res_fc_block(x, out_dim, name, depth=2):
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         y = x 
         for i in range(depth):
             y = tf.layers.dense(tf.nn.relu(y), out_dim, name='layer'+str(i))
@@ -163,7 +163,7 @@ def res_fc_block(x, out_dim, name, depth=2):
 
 
 def scale_block(x, out_dim, is_training, name, block_per_scale=1, depth_per_block=2, kernel_size=3):
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         y = x 
         for i in range(block_per_scale):
             y = res_block(y, out_dim, is_training, 'block'+str(i), depth_per_block, kernel_size)
@@ -171,7 +171,7 @@ def scale_block(x, out_dim, is_training, name, block_per_scale=1, depth_per_bloc
 
 
 def scale_fc_block(x, out_dim, name, block_per_scale=1, depth_per_block=2):
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         y = x 
         for i in range(block_per_scale):
             y = res_fc_block(y, out_dim, 'block'+str(i), depth_per_block)

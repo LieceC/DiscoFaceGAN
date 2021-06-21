@@ -29,7 +29,7 @@ def Perceptual_Net(input_imgs):
         weights_regularizer=slim.l2_regularizer(0.0),
         normalizer_fn=slim.batch_norm,
         normalizer_params=batch_norm_params):
-        feature_128,_ = inception_resnet_v1(input_imgs, bottleneck_layer_size=128, is_training=False, reuse=tf.AUTO_REUSE)
+        feature_128,_ = inception_resnet_v1(input_imgs, bottleneck_layer_size=128, is_training=False, reuse=tf.compat.v1.AUTO_REUSE)
 
     #output the last FC layer feature(before classification) as identity feature
     return feature_128

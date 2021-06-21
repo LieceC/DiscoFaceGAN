@@ -44,17 +44,17 @@ def main():
         ch_depth = 3
 
     # input
-    input_x = tf.placeholder(tf.float32, [args.batch_size, coeff_dim], 'x')
+    input_x = tf.compat.v1.placeholder(tf.float32, [args.batch_size, coeff_dim], 'x')
     data_worker = DataFetchWorker(factor=args.factor,path=args.datapath, batch_size=args.batch_size, shuffle=True)
     num_sample = data_worker.total_subj_train
     print(num_sample)
 
     # model
-    with tf.variable_scope(args.factor):
+    with tf.compat.v1.variable_scope(args.factor):
         model = MLP(input_x, latent_dim, ch_dim, ch_depth, args.cross_entropy_loss)
 
     sess = tf.InteractiveSession()
-    sess.run(tf.global_variables_initializer())
+    sess.run(tf.compat.v1.global_variables_initializer())
     writer = tf.summary.FileWriter(exp_folder, sess.graph)
     saver = tf.train.Saver()
 

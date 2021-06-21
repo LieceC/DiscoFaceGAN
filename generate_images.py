@@ -16,8 +16,8 @@ import argparse
 
 # define mapping network from z space to lambda space
 def CoeffDecoder(z,ch_depth = 3, ch_dim = 512, coeff_length = 128):
-    with tf.variable_scope('stage1'):
-        with tf.variable_scope('decoder'):
+    with tf.compat.v1.variable_scope('stage1'):
+        with tf.compat.v1.variable_scope('decoder'):
             y = z
             for i in range(ch_depth):
                 y = tf.layers.dense(y, ch_dim, tf.nn.relu, name='fc'+str(i))
@@ -30,7 +30,7 @@ def CoeffDecoder(z,ch_depth = 3, ch_dim = 512, coeff_length = 128):
 # restore pre-trained weights
 def restore_weights_and_initialize():
     var_list = tf.trainable_variables()
-    g_list = tf.global_variables()
+    g_list = tf.compat.v1.global_variables()
 
     # add batch normalization params into trainable variables 
     bn_moving_vars = [g for g in g_list if 'moving_mean' in g.name]
@@ -47,20 +47,20 @@ def restore_weights_and_initialize():
     saver_gamma = tf.train.Saver(var_list = var_gamma_list,max_to_keep = 100)
     saver_rot = tf.train.Saver(var_list = var_rot_list,max_to_keep = 100)
     
-    saver_id.restore(tf.get_default_session(),'./vae/weights/id/stage1_epoch_395.ckpt')
-    saver_exp.restore(tf.get_default_session(),'./vae/weights/exp/stage1_epoch_395.ckpt')
-    saver_gamma.restore(tf.get_default_session(),'./vae/weights/gamma/stage1_epoch_395.ckpt')
-    saver_rot.restore(tf.get_default_session(),'./vae/weights/rot/stage1_epoch_395.ckpt')
+    saver_id.restore(tf.compat.v1.get_default_session(),'./vae/weights/id/stage1_epoch_395.ckpt')
+    saver_exp.restore(tf.compat.v1.get_default_session(),'./vae/weights/exp/stage1_epoch_395.ckpt')
+    saver_gamma.restore(tf.compat.v1.get_default_session(),'./vae/weights/gamma/stage1_epoch_395.ckpt')
+    saver_rot.restore(tf.compat.v1.get_default_session(),'./vae/weights/rot/stage1_epoch_395.ckpt')
 
 def z_to_lambda_mapping(latents):
-    with tf.variable_scope(tf.get_variable_scope(), reuse=tf.AUTO_REUSE):
-        with tf.variable_scope('id'):
+    with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope(), reuse=tf.compat.v1.AUTO_REUSE):
+        with tf.compat.v1.variable_scope('id'):
             IDcoeff = CoeffDecoder(z = latents[:,:128],coeff_length = 160,ch_dim = 512, ch_depth = 3)
-        with tf.variable_scope('exp'):
+        with tf.compat.v1.variable_scope('exp'):
             EXPcoeff = CoeffDecoder(z = latents[:,128:128+32],coeff_length = 64,ch_dim = 256, ch_depth = 3)
-        with tf.variable_scope('gamma'):
+        with tf.compat.v1.variable_scope('gamma'):
             GAMMAcoeff = CoeffDecoder(z = latents[:,128+32:128+32+16],coeff_length = 27,ch_dim = 128, ch_depth = 3)
-        with tf.variable_scope('rot'):
+        with tf.compat.v1.variable_scope('rot'):
             Rotcoeff = CoeffDecoder(z = latents[:,128+32+16:128+32+16+3],coeff_length = 3,ch_dim = 32, ch_depth = 3)
 
         INPUTcoeff = tf.concat([IDcoeff,EXPcoeff,Rotcoeff,GAMMAcoeff], axis = 1)
@@ -96,8 +96,8 @@ def get_model_and_average_w_id(model_name):
     average_w_name = model_name.replace('.pkl','-average_w_id.txt')
     if not os.path.isfile(average_w_name):
         print('Calculating average w id...\n')
-        latents = tf.placeholder(tf.float32, name='latents', shape=[1,128+32+16+3])
-        noise = tf.placeholder(tf.float32, name='noise', shape=[1,32])
+        latents = tf.compat.v1.placeholder(tf.float32, name='latents', shape=[1,128+32+16+3])
+        noise = tf.compat.v1.placeholder(tf.float32, name='noise', shape=[1,32])
         INPUTcoeff = z_to_lambda_mapping(latents)
         INPUTcoeff_id = INPUTcoeff[:,:160]
         INPUTcoeff_w_noise = tf.concat([INPUTcoeff_id,tf.zeros([1,64+27+3]),noise],axis = 1)
@@ -167,8 +167,8 @@ def main():
         Gs.print_layers()
 
         # Pick latent vector.
-        latents = tf.placeholder(tf.float32, name='latents', shape=[1,128+32+16+3])
-        noise = tf.placeholder(tf.float32, name='noise', shape=[1,32])
+        latents = tf.compat.v1.placeholder(tf.float32, name='latents', shape=[1,128+32+16+3])
+        noise = tf.compat.v1.placeholder(tf.float32, name='noise', shape=[1,32])
         INPUTcoeff = z_to_lambda_mapping(latents)
         INPUTcoeff_w_noise = tf.concat([INPUTcoeff,noise],axis = 1)
 

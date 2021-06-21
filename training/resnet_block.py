@@ -148,7 +148,7 @@ def block_layer(inputs, filters, blocks, strides, training,
   filters_out = filters
 
   def projection_shortcut(inputs):
-  	with tf.variable_scope('downsample'):
+  	with tf.compat.v1.variable_scope('downsample'):
   		inputs = conv2d_fixed_padding(
   			inputs=inputs, filters=filters_out, kernel_size=1, strides=strides,
   			data_format=data_format)
